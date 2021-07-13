@@ -34,4 +34,5 @@ Camera placement and ammount can be customized in the add_cameras() method.
 
 ### Known issues
 
+- Flat objects with a large area are problematic with the default camera configuration.
 - Really large objects and objects that are really off center from origin don't produce good results.
