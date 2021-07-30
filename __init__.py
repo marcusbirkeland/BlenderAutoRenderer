@@ -31,8 +31,11 @@ class BAR_PT_Export(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.prop(context.scene.BARData, "input_path", text="Input Path:")
-        layout.prop(context.scene.BARData, "output_path", text="Output Path:")
+        input_path_row = layout.row()
+        input_path_row.prop(context.scene.BARData, "input_path", text="Input Path")
+
+        output_path_row = layout.row()
+        output_path_row.prop(context.scene.BARData, "output_path", text="Output Path")
 
 
 def register():
