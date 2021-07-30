@@ -29,6 +29,7 @@ class BARExecuteButton(bpy.types.Operator):
     """Execute Batch Render"""
     bl_idname = "bar.exec_render"
     bl_label = "Execute Batch Render"
+    bl_options = {'PRESET', "REGISTER", "UNDO"}
     
     def execute(self, context):
         from .BAR import main
