@@ -223,7 +223,7 @@ def addLight():
     dg = bpy.context.evaluated_depsgraph_get() 
     dg.update()    
 
-def main (dir_path = argumentList[0] , output_folder = argumentList[1]):
+def main (dir_path , output_folder):
     addLight()
     files = [f for f in os.listdir(dir_path) if os.path.isfile (os.path.join(dir_path,f))]
     for f in files:
@@ -249,5 +249,4 @@ def captureScene(f = "filename.dtt"):
     add_cameras(getFirstObject())
     capture('C:/tmp/render',f)
     deleteCollection()
-    
-main()
+
