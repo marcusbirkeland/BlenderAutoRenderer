@@ -193,14 +193,10 @@ def capture(path, filename):
             counter += 1
                   
         
-def deleteCollection():
-    if(not bpy.data.collections):
-        print("no objects to delete")
-        return
-    collection = bpy.data.collections[0]
-    for obj in collection.objects:
+def clearScene():
+    all_data = bpy.data.objects
+    for obj in all_data:
         bpy.data.objects.remove(obj, do_unlink=True)
-    bpy.data.collections.remove(collection)
     
 def addLight():
     # create light datablock, set attributes
@@ -237,10 +233,9 @@ def main (dir_path , output_folder):
                 skip = True
             finally:
                 if(not skip):
-                    joinAllObjects()
                     add_cameras(getFirstObject())
                     capture(output_folder,f)
-                    deleteCollection()
+                    clearScene()()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
             
 # use for objects imported manually into the scene
