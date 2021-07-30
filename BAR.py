@@ -185,7 +185,7 @@ def capture(path, filename):
         if ob.type == 'CAMERA':
             # capture camera's view
             bpy.context.scene.camera = ob
-            file = os.path.join(path, 'img', filename[0:6] + "_" + str(counter))
+            file = os.path.join(path, 'img', filename.split(".")[0] + "_" + str(counter))
             bpy.context.scene.render.filepath = file
             bpy.context.scene.render.image_settings.color_mode ='RGBA'
             bpy.context.scene.render.film_transparent = True
