@@ -225,17 +225,16 @@ def main (dir_path , output_folder):
     for f in files:
         filepath = dir_path + "/" + f 
         if f.endswith('.dtt'):
-            skip = False
             try:
                 bpy.ops.import_scene.dtt_data(filepath = filepath, reset_blend = False)
             except:
                 print("could not open .dtt, continuing")
-                skip = True
-            finally:
-                if(not skip):
-                    add_cameras(getFirstObject())
-                    capture(output_folder,f)
-                    clearScene()()
+                continue
+
+            joinAllObjects()
+            add_cameras(getFirstObject())
+            capture(output_folder,f)
+            deleteCollection()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
             
 # use for objects imported manually into the scene
