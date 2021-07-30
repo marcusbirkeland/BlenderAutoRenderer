@@ -10,13 +10,7 @@ bl_info = {
 import bpy
 from bpy.props import StringProperty, IntProperty, FloatProperty, BoolProperty
 
-class BlenderAutoRenderer_Export(bpy.types.Panel):
-    bl_label = "Blender Auto Renderer"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "output"
-    bl_option = {"DEFAULT_CLOSED"}
-
+class BARProps(bpy.types.PropertyGroup):
     input_path : StringProperty(default='None')
     output_path : StringProperty(default='None')
 
@@ -28,16 +22,28 @@ class BlenderAutoRenderer_Export(bpy.types.Panel):
     light_intensity : FloatProperty()
     light_angle : FloatProperty()
 
+class BAR_PT_Export(bpy.types.Panel):
+    bl_label = "Blender Auto Renderer"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "output"
+    bl_option = {"DEFAULT_CLOSED"}
+
     def draw(self, context):
         layout = self.layout
-        
+        layout.prop(context.scene.BARData, "input_path", text="Input Path:")
+        layout.prop(context.scene.BARData, "output_path", text="Output Path:")
 
 
 def register():
-    bpy.utils.register_class(BlenderAutoRenderer_Export)
+    bpy.utils.register_class(BARProps)
+    bpy.utils.register_class(BAR_PT_Export)
+    
+    bpy.types.Scene.BARData = bpy.props.PointerProperty(type=BARProps)
 
 def unregister():
-    bpy.utils.unregister_class(BlenderAutoRenderer_Export)
+    bpy.utils.unregister_class(BARProps)
+    bpy.utils.unregister_class(BAR_PT_Export)
 
 if __name__ == '__main__':
     register()
