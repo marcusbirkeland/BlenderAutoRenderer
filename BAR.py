@@ -192,7 +192,7 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
 def get_origin(v1, v2):
      return v1 + 0.5 * (v2 - v1)
 
-def capture(path, filename):
+def capture(path, filename, use_transparent):
     bpy.context.scene.render.image_settings.color_mode = 'RGB'
     # iterate over all objects
     counter = 0
@@ -207,7 +207,7 @@ def capture(path, filename):
             file = os.path.join(path, 'img', filename.split(".")[0] + "_" + str(counter))
             bpy.context.scene.render.filepath = file
             bpy.context.scene.render.image_settings.color_mode ='RGBA'
-            bpy.context.scene.render.film_transparent = True
+            bpy.context.scene.render.film_transparent = use_transparent
             bpy.ops.render.render(write_still=True)
             counter += 1
                     
@@ -248,12 +248,4 @@ def main (dir_path , output_folder, levels, density , r_offset, z_offset, enable
         capture(output_folder,f)
         clearScene()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
-            
-    
-# use for objects imported manually into the scene
-def captureScene(f = "filename.dtt"):
-    joinAllObjects()
-    add_cameras(getFirstObject())
-    capture('C:/tmp/render',f)
-    deleteCollection()
 

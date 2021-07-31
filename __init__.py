@@ -13,8 +13,6 @@ from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty, IntProperty, FloatProperty, BoolProperty
 
 class BARProps(bpy.types.PropertyGroup):
-    input_path : StringProperty(default='None')
-    output_path : StringProperty(default='None')
 
     num_cameras : IntProperty(min = 1, max = 360, default=4)
     num_camera_levels : IntProperty(min = 0 , max = 10, default=0)
@@ -26,6 +24,10 @@ class BARProps(bpy.types.PropertyGroup):
     light_angle : FloatProperty(min = 0, max = 360)
 
     only_place : BoolProperty(default=False)
+
+    use_transparent : BoolProperty(default=True)
+    input_path : StringProperty(default='None')
+    output_path : StringProperty(default='None')
 
 
 class BARExecuteButton(bpy.types.Operator):
@@ -87,6 +89,7 @@ class BAR_PT_Export(bpy.types.Panel):
         layout.prop(context.scene.BARData, "only_place", text="Camera test(no render)")
         #PATHS
         layout.label(text= "Render")
+        layout.prop(context.scene.BARData, "use_transparent", text="Transparent film")
         input_path_row = layout.row()
         input_path_row.prop(context.scene.BARData, "input_path", text="Input Path")
         input_path_row.operator("bar.select_path", icon="FILE_FOLDER", text="").path_type = "input_path"
