@@ -10,29 +10,68 @@ import sys
         
 # -----------------------------------------------------------------------------
 
-
-""" add_cameras
-- (string) 	target_name
-            name of the 'to be caputred' object in blender 
-- (int) 	levels
-            number of levels in z direction
-- (int) 	density
-            number of cameras on one level
-- (int) 	r_offset
-            offset distance for the radius
-- (int) 	z_offset
-            offset distance in z direction
-            
->>> None
-add_cameras places cameras around the target object according to the given
-parameters. The placement is based on the bounding box of the target object.
-Offsets are based on the side length of the bounding box.
+# TO ADD CUSTOM IMPORTS, PASTE THIS into the elif chain:
+""" 
+elif f.endswith("[YOUR FILE EXTENSION]"):
+        try:
+            bpy.ops.[BLENDER COMMAND FOR IMPORT](filepath = filepath)
+        except:
+            print("could not open, continuing")
+            return -1
 """
+
+
+def import_file(dir_path, f):
+    filepath = dir_path + "/" + f
+    if f.endswith(".ply"):
+        try:
+            bpy.ops.import_mesh.ply(filepath = filepath)
+            return 0
+        except:
+            print("could not open ply, continuing")
+    elif f.endswith(".stl"):
+        try:
+            bpy.ops.import_mesh.stl(filepath = filepath)
+            return 0
+        except:
+            print("could not open stl, continuing")
+    elif f.endswith(".fbx"):
+        try:
+            bpy.ops.import_scene.fbx(filepath = filepath)
+            return 0
+        except:
+            print("could not open fbx, continuing")
+    elif f.endswith(".gltf") or f.endswith(".glb"):
+        try:
+            bpy.ops.import_scene.gltf(filepath = filepath)
+            return 0
+        except:
+            print("could not open gltf/glb, continuing")             
+    elif f.endswith(".obj"):
+        try:
+            bpy.ops.import_scene.obj(filepath = filepath)
+            return 0
+        except:
+            print("could not open obj, continuing")
+    elif f.endswith(".x3d") or f.endswith(".wrl"):
+        try:
+            bpy.ops.import_scene.x3d(filepath = filepath)
+            return 0
+        except:
+            print("could not open x3d/wrl, continuing")
+    elif f.endswith(".dtt"):
+        try:
+            bpy.ops.import_scene.dtt_data(filepath = filepath, reset_blend = False)
+            return 0
+        except:
+            print("could not open dtt, continuing")
+    return -1  
+  
 
 def apply_all_transforms():
     for obj in bpy.data.objects:
         if obj.type == "MESH":
-            print("NAME:" , obj.name)
+            #print("NAME:" , obj.name)
             obj.select_set(True)
             bpy.ops.object.transform_apply(location=True, rotation= True, scale=True)
             obj.select_set(False)
@@ -92,12 +131,12 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
     target_obj = bpy.data.objects[target_name]
     #target_origin = get_origin(get_min(target_obj.bound_box), get_max(target_obj.bound_box))
     target_origin = get_origin(get_total_max_BB(), get_total_min_BB())
-    print("Target origin:" , target_origin)
+    #print("Target origin:" , target_origin)
 
     # Set cursor to target_origin
     bpy.context.scene.cursor.location = target_origin
-    print("total max bb: ", get_total_max_BB())
-    print("total min bb:", get_total_min_BB())
+    #print("total max bb: ", get_total_max_BB())
+    #print("total min bb:", get_total_min_BB())
     # Set origin to 3d-cursor
     target_obj.select_set(True)
     bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
@@ -150,42 +189,9 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
             bpy.ops.object.visual_transform_apply()
             #camera_obj.select_set(True)
             
-""" get_min
-- (bound_box)	bound_box
-                utilized bound_box
->>> (Vector) (x,y,z)
-get_min estimates the minimal x, y, z values
-"""
-def get_min(bound_box):
-    min_x = min([bound_box[i][0] for i in range(0, 8)])
-    min_y = min([bound_box[i][1] for i in range(0, 8)])
-    min_z = min([bound_box[i][2] for i in range(0, 8)])
-    return Vector((min_x, min_y, min_z))
-
-
-""" get_max
-- (bound_box)	bound_box
-                utilized bound_box
->>> (Vector) (x,y,z)
-get_max estimates the maximal x, y, z values
-"""
-def get_max(bound_box):
-    max_x = max([bound_box[i][0] for i in range(0, 8)])
-    max_y = max([bound_box[i][1] for i in range(0, 8)])
-    max_z = max([bound_box[i][2] for i in range(0, 8)])
-    return Vector((max_x, max_y, max_z))
-
-
 def get_origin(v1, v2):
      return v1 + 0.5 * (v2 - v1)
 
-
-""" capture
-- (string)	path
-            path to image directory
->>> None
-this function iterates over all camera and renders their viewpoint
-"""
 def capture(path, filename):
     bpy.context.scene.render.image_settings.color_mode = 'RGB'
     # iterate over all objects
@@ -204,8 +210,7 @@ def capture(path, filename):
             bpy.context.scene.render.film_transparent = True
             bpy.ops.render.render(write_still=True)
             counter += 1
-                  
-        
+                    
 def clearScene():
     all_data = bpy.data.objects
     for obj in all_data:
@@ -233,22 +238,18 @@ def main (dir_path , output_folder, levels, density , r_offset, z_offset, enable
     clearScene()
     files = [f for f in os.listdir(dir_path) if os.path.isfile (os.path.join(dir_path,f))]
     for f in files:
-        filepath = dir_path + "/" + f 
-        if f.endswith('.dtt'):
-            try:
-                bpy.ops.import_scene.dtt_data(filepath = filepath, reset_blend = False)
-            except:
-                print("could not open file, continuing")
-                continue
-            apply_all_transforms()
-            addLight(enabled, intensity, angle)
-            add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
-            if only_place:
-                return
-            capture(output_folder,f)
-            clearScene()
+        if import_file(dir_path, f) == -1:
+            continue
+        apply_all_transforms()
+        addLight(enabled, intensity, angle)
+        add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
+        if only_place:
+            return
+        capture(output_folder,f)
+        clearScene()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
             
+    
 # use for objects imported manually into the scene
 def captureScene(f = "filename.dtt"):
     joinAllObjects()
