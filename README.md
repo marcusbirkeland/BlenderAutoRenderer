@@ -1,38 +1,36 @@
 # BlenderAutoRenderer
 
-This script lets you automatically import and render files in Blender. 
-This is configured for NieR:Automata files, but can be used for all blender imports. 
+This script lets you automatically import and render files in Blender! 
 Based off [this script.](https://gist.github.com/der-Daniel/cfc93a4661f47e66bfd4ebd81efbb943)
 
-![output example](https://user-images.githubusercontent.com/36818485/123545506-a3322b00-d758-11eb-90e6-36227326429d.png)
+<img height="400" alt="output example" src="https://user-images.githubusercontent.com/36818485/123545506-a3322b00-d758-11eb-90e6-36227326429d.png">
 
 ## How to use 
 
-**NOTE: This script is configured to work with .dtt files out of the box. How to change input filetype is outlined below!**
+1. Download this as a zip, and install and enable as a Blender 2.8+ Plugin.
+2. "Blender Auto Renderer" should now be in the output properties tab.
+3. Set the parameters for cameras and lighting, and then select the path to the folder with your import files as "Input Path". All files within this folder will automatically be imported, and then rendered.
+4. Select where you want the rendered images as "Output Path"
+5. Press "Execute Batch Render"
 
-1. Open a terminal window, and move to the folder containing your Blender 2.8+ exe file.
-    - (Optional) You can add Blender to PATH if you don't want to navigate to the Blender folder everytime
-2. Use this command to batch render all files in a folder:
-```
-blender -P "[path to BAR.py]" "[path to folder with files to render]" "[Render output folder]"
-```
+<img width="300" alt="bar" src="https://user-images.githubusercontent.com/36818485/127747435-ffde6756-e6f5-433d-b4c9-2ea353f1f376.PNG">
 
-NOTE: No other command will run this script. Also running blender in background mode does not work with this script.
 
 ## Customization
 
-### Changing import file type
-This script can import any blender supported format. By default it is configured to import .dtt files (NieR:Automata files).
-To change this, just modify these lines in the main() method:
-![Modify import type](https://user-images.githubusercontent.com/36818485/123545554-e2607c00-d758-11eb-901c-b8b6b10e6e1f.png)
+### Custom import file-types
+This add-on by default only supports the default Blender imports, but you can easily add custom ones this way:
 
-### Customizing rendering
-This script places four cameras around the bounding box of the imported object. 
-Camera placement and ammount can be customized in the add_cameras() method.
+1. Open BAR.py, and paste this into the elif chain in the ```py import_file() ``` function.
+- Tip: to find the blender command for the custom import, go to Blender Preferences -> interface -> Enable Python tooltips. Now you should see the python command when hovering over the import option in Blender.  
 
-![bilde](https://user-images.githubusercontent.com/36818485/123545662-70d4fd80-d759-11eb-8357-763721bac528.png)
+```py
+elif f.endswith("[YOUR FILE EXTENSION]"):
+    try:
+        bpy.ops.[BLENDER COMMAND FOR IMPORT](filepath = filepath)
+        return 0
+    except:
+        print("could not open, continuing")
+```
 
-### Known issues
 
-- Flat objects with a large area are problematic with the default camera configuration.
-- Really large objects and objects that are really off center from origin don't produce good results.
