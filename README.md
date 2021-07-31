@@ -21,7 +21,7 @@ Based off [this script.](https://gist.github.com/der-Daniel/cfc93a4661f47e66bfd4
 ### Custom import file-types
 This add-on by default only supports the default Blender imports, but you can easily add custom ones this way:
 
-1. Open BAR.py, and paste this into the elif chain in the ```py import_file() ``` function.
+1. Open BAR.py, and paste this into the elif chain in the ```import_file() ``` function.
 - Tip: to find the blender command for the custom import, go to Blender Preferences -> interface -> Enable Python tooltips. Now you should see the python command when hovering over the import option in Blender.  
 
 ```py
