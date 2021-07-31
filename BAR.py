@@ -187,11 +187,10 @@ def main (dir_path , output_folder, levels, density , r_offset, z_offset, enable
                 continue
             addLight(enabled, intensity, angle)
             add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
-            if not only_place:
-                capture(output_folder,f)
-                clearScene()
-            else:
+            if only_place:
                 return
+            capture(output_folder,f)
+            clearScene()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
             
 # use for objects imported manually into the scene

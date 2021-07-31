@@ -72,7 +72,7 @@ class BAR_PT_Export(bpy.types.Panel):
         layout = self.layout
         #CAMERAS
         layout.label(text = "Cameras")
-        layout.prop(context.scene.BARData, "num_cameras", text="Num Cameras")
+        layout.prop(context.scene.BARData, "num_cameras", text="Cameras per level")
         layout.prop(context.scene.BARData, "num_camera_levels", text="Camera levels")
         layout.prop(context.scene.BARData, "radius_offset", text="Radius Offset")
         layout.prop(context.scene.BARData, "z_offset", text="Z-Offset")
@@ -86,6 +86,7 @@ class BAR_PT_Export(bpy.types.Panel):
         layout.label(text = "Other")
         layout.prop(context.scene.BARData, "only_place", text="Camera test(no render)")
         #PATHS
+        layout.label(text= "Render")
         input_path_row = layout.row()
         input_path_row.prop(context.scene.BARData, "input_path", text="Input Path")
         input_path_row.operator("bar.select_path", icon="FILE_FOLDER", text="").path_type = "input_path"
