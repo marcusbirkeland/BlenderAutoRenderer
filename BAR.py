@@ -4,13 +4,10 @@ import math
 import os
 import sys
 
-# Remove 1st argument from the
-# list of command line arguments
-
-# COMMAND TO RUN : blender -b -P blenderAutoRender.py "indir" "outdir"
-
-argumentList = sys.argv[3:]
- 
+#TODO: 
+# 1. Find bounding box for ALL objects
+# 2. Set cameras to target center of that box
+        
 # -----------------------------------------------------------------------------
 
 
