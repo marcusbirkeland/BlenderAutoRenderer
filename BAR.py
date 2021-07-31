@@ -234,7 +234,7 @@ def addLight(enabled,intensity, angle):
     dg = bpy.context.evaluated_depsgraph_get() 
     dg.update()    
 
-def main (dir_path , output_folder, levels, density , r_offset, z_offset, enabled, intensity, angle, only_place):
+def main (dir_path , output_folder, levels, density , r_offset, z_offset, enabled, intensity, angle, only_place, use_transparent):
     clearScene()
     files = [f for f in os.listdir(dir_path) if os.path.isfile (os.path.join(dir_path,f))]
     for f in files:
@@ -245,7 +245,7 @@ def main (dir_path , output_folder, levels, density , r_offset, z_offset, enable
         add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
         if only_place:
             return
-        capture(output_folder,f)
+        capture(output_folder,f, use_transparent)
         clearScene()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
 

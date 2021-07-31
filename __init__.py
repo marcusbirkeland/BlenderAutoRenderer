@@ -38,7 +38,7 @@ class BARExecuteButton(bpy.types.Operator):
     
     def execute(self, context):
         from .BAR import main
-        main(dir_path = context.scene.BARData.input_path, output_folder=context.scene.BARData.output_path, levels=context.scene.BARData.num_camera_levels, density=context.scene.BARData.num_cameras, r_offset=context.scene.BARData.radius_offset, z_offset=context.scene.BARData.z_offset, enabled=context.scene.BARData.place_light, intensity=context.scene.BARData.light_intensity, angle=context.scene.BARData.light_angle, only_place=context.scene.BARData.only_place)
+        main(dir_path = context.scene.BARData.input_path, output_folder=context.scene.BARData.output_path, levels=context.scene.BARData.num_camera_levels, density=context.scene.BARData.num_cameras, r_offset=context.scene.BARData.radius_offset, z_offset=context.scene.BARData.z_offset, enabled=context.scene.BARData.place_light, intensity=context.scene.BARData.light_intensity, angle=context.scene.BARData.light_angle, only_place=context.scene.BARData.only_place, use_transparent=context.scene.BARData.use_transparent)
         return{"FINISHED"}
         
 
