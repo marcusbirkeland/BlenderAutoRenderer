@@ -170,18 +170,12 @@ def addLight(enabled,intensity, angle):
     # link light object
     bpy.context.collection.objects.link(light_object)
 
-    # make it active 
-    bpy.context.view_layer.objects.active = light_object
-
-    #change location
-    light_object.location = (5, 5, 5)
-
     # update scene, if needed
     dg = bpy.context.evaluated_depsgraph_get() 
     dg.update()    
 
-def main (dir_path , output_folder, levels, density , r_offset, z_offset, enabled, intensity, angle):
-    addLight()
+def main (dir_path , output_folder, levels, density , r_offset, z_offset, enabled, intensity, angle, only_place):
+    clearScene()
     files = [f for f in os.listdir(dir_path) if os.path.isfile (os.path.join(dir_path,f))]
     for f in files:
         filepath = dir_path + "/" + f 
@@ -191,9 +185,13 @@ def main (dir_path , output_folder, levels, density , r_offset, z_offset, enable
             except:
                 print("could not open file, continuing")
                 continue
+            addLight(enabled, intensity, angle)
             add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
-            capture(output_folder,f)
-            clearScene()()
+            if not only_place:
+                capture(output_folder,f)
+                clearScene()
+            else:
+                return
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
             
 # use for objects imported manually into the scene
