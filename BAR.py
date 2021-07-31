@@ -28,7 +28,55 @@ add_cameras places cameras around the target object according to the given
 parameters. The placement is based on the bounding box of the target object.
 Offsets are based on the side length of the bounding box.
 """
+
+def apply_all_transforms():
+    for obj in bpy.data.objects:
+        if obj.type == "MESH":
+            print("NAME:" , obj.name)
+            obj.select_set(True)
+            bpy.ops.object.transform_apply(location=True, rotation= True, scale=True)
+            obj.select_set(False)
     
+def get_total_min_BB():
+
+    objects = bpy.context.scene.objects
+    min_x = objects[0].bound_box[0][0]
+    min_y = objects[0].bound_box[0][1]
+    min_z = objects[0].bound_box[0][2]
+
+    for obj in objects:
+        if obj.type == "MESH":
+            temp_min_x = min([obj.bound_box[i][0] for i in range(0, 8)])
+            temp_min_y = min([obj.bound_box[i][1] for i in range(0, 8)])
+            temp_min_z = min([obj.bound_box[i][2] for i in range(0, 8)])
+            if temp_min_x < min_x:
+                min_x = temp_min_x
+            if temp_min_y < min_y:
+                min_y = temp_min_y
+            if temp_min_z < min_z:
+                min_z = temp_min_z 
+    return Vector((min_x,min_y,min_z))
+    
+def get_total_max_BB():
+
+    objects = bpy.context.scene.objects
+    max_x = objects[0].bound_box[0][0]
+    max_y = objects[0].bound_box[0][1]
+    max_z = objects[0].bound_box[0][2]
+
+    for obj in objects:
+        if obj.type == "MESH":
+            temp_max_x = max([obj.bound_box[i][0] for i in range(0, 8)])
+            temp_max_y = max([obj.bound_box[i][1] for i in range(0, 8)])
+            temp_max_z = max([obj.bound_box[i][2] for i in range(0, 8)])
+            if temp_max_x > max_x:
+                max_x = temp_max_x
+            if temp_max_y > max_y:
+                max_y = temp_max_y
+            if temp_max_z > max_z:
+                max_z = temp_max_z 
+    return Vector((max_x,max_y,max_z))               
+
 def getFirstObject():
     objectName = ""   
     try:
@@ -42,9 +90,21 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
         return
     # find target object
     target_obj = bpy.data.objects[target_name]
-    target_origin = target_obj.location
+    #target_origin = get_origin(get_min(target_obj.bound_box), get_max(target_obj.bound_box))
+    target_origin = get_origin(get_total_max_BB(), get_total_min_BB())
+    print("Target origin:" , target_origin)
+
+    # Set cursor to target_origin
+    bpy.context.scene.cursor.location = target_origin
+    print("total max bb: ", get_total_max_BB())
+    print("total min bb:", get_total_min_BB())
+    # Set origin to 3d-cursor
+    target_obj.select_set(True)
+    bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+    target_obj.select_set(False)
+
     # get bounding box side lengths
-    bb_sides = get_min(target_obj.bound_box) - get_max(target_obj.bound_box)
+    bb_sides = get_total_min_BB() - get_total_max_BB()
     (dist_x, dist_y, dist_z) = tuple([abs(c) for c in bb_sides])
     originated_dist_y = .5 * dist_y
     # calc the radius by taking the longer side in x-y-direction + r_offset
@@ -72,6 +132,7 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
             camera_obj.location = Vector(position)	
             # Create a new collection and link it to the scene.
             # apply track-to constraint
+            # Set up camera tracking
             ttc = camera_obj.constraints.new(type='TRACK_TO')
             ttc.target = target_obj
             ttc.track_axis = 'TRACK_NEGATIVE_Z'
@@ -89,9 +150,6 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
             bpy.ops.object.visual_transform_apply()
             #camera_obj.select_set(True)
             
-            
-
-
 """ get_min
 - (bound_box)	bound_box
                 utilized bound_box
@@ -182,6 +240,7 @@ def main (dir_path , output_folder, levels, density , r_offset, z_offset, enable
             except:
                 print("could not open file, continuing")
                 continue
+            apply_all_transforms()
             addLight(enabled, intensity, angle)
             add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
             if only_place:
