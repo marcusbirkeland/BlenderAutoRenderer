@@ -16,12 +16,13 @@ class BARProps(bpy.types.PropertyGroup):
     input_path : StringProperty(default='None')
     output_path : StringProperty(default='None')
 
-    num_cameras : IntProperty(min = 1, max = 360)
-    radius_offset : FloatProperty(min = 0, max = 2000)
+    num_cameras : IntProperty(min = 1, max = 360, default=4)
+    num_camera_levels : IntProperty(min = 1 , max = 10, default=1)
+    radius_offset : FloatProperty(min = 0, max = 2000, default=5)
     z_offset : FloatProperty()
 
     place_light : BoolProperty(default=True)
-    light_intensity : FloatProperty(min = 0)
+    light_intensity : FloatProperty(min = 0, default=10)
     light_angle : FloatProperty(min = 0, max = 360)
 
 
@@ -33,7 +34,7 @@ class BARExecuteButton(bpy.types.Operator):
     
     def execute(self, context):
         from .BAR import main
-        main(dir_path = context.scene.BARData.input_path, output_folder=context.scene.BARData.output_path)
+        main(dir_path = context.scene.BARData.input_path, output_folder=context.scene.BARData.output_path, levels=context.scene.BARData.num_camera_levels, density=context.scene.BARData.num_cameras, r_offset=context.scene.BARData.radius_offset, z_offset=context.scene.BARData.z_offset, enabled=context.scene.BARData.place_light, intensity=context.scene.BARData.light_intensity, angle=context.scene.BARData.light_angle)
         return{"FINISHED"}
         
 
@@ -70,6 +71,7 @@ class BAR_PT_Export(bpy.types.Panel):
         #CAMERAS
         layout.label(text = "Cameras")
         layout.prop(context.scene.BARData, "num_cameras", text="Num Cameras")
+        layout.prop(context.scene.BARData, "num_camera_levels", text="Camera levels")
         layout.prop(context.scene.BARData, "radius_offset", text="Radius Offset")
         layout.prop(context.scene.BARData, "z_offset", text="Z-Offset")
 

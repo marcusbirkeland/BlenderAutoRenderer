@@ -31,55 +31,13 @@ add_cameras places cameras around the target object according to the given
 parameters. The placement is based on the bounding box of the target object.
 Offsets are based on the side length of the bounding box.
 """
-
-def joinAllObjects():
-    #Deselect all
-    bpy.ops.object.select_all(action='DESELECT')
-    ARM_OBJS = []
-    MSH_OBJS = []
-    
-    try:
-    
-        ARM_OBJS = [m for m in bpy.context.scene.objects if m.type == 'ARMATURE']
-        
-    except:
-        print("there was no collection")
-        
-    #delete armature
-    if(len(ARM_OBJS) > 0):
-        bpy.data.objects.remove(ARM_OBJS[0])
-
-    try:
-        #Mesh objects
-
-        MSH_OBJS = [m for m in bpy.context.scene.objects if m.type == 'MESH']
-    
-    except:
-        print("there was no collection")
-        
-    finally:
-
-        for OBJS in MSH_OBJS:
-            #Select all mesh objects
-            OBJS.select_set(state=True)
-
-            #Makes one active
-            bpy.context.view_layer.objects.active = OBJS
-        #Joins objects
-        try:
-            bpy.ops.object.join()
-        except:
-            print("unable to join objects")
     
 def getFirstObject():
     objectName = ""   
     try:
-        objectName = bpy.data.collections[0].objects[0].name
+        objectName = bpy.data.objects[0].name
     except:
-        try:
-            objectName = bpy.context.scene.objects[0].name
-        except:
-            return ""
+        return None
     return  objectName
 
 def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offset=8):
@@ -198,10 +156,13 @@ def clearScene():
     for obj in all_data:
         bpy.data.objects.remove(obj, do_unlink=True)
     
-def addLight():
+def addLight(enabled,intensity, angle):
+    if(not enabled):
+        return
     # create light datablock, set attributes
     light_data = bpy.data.lights.new(name="ambient", type='SUN')
-    light_data.energy = 10
+    light_data.energy = intensity
+    light_data.angle = angle
 
     # create new object with our light datablock
     light_object = bpy.data.objects.new(name="ambient", object_data=light_data)
@@ -219,7 +180,7 @@ def addLight():
     dg = bpy.context.evaluated_depsgraph_get() 
     dg.update()    
 
-def main (dir_path , output_folder):
+def main (dir_path , output_folder, levels, density , r_offset, z_offset, enabled, intensity, angle):
     addLight()
     files = [f for f in os.listdir(dir_path) if os.path.isfile (os.path.join(dir_path,f))]
     for f in files:
@@ -228,13 +189,11 @@ def main (dir_path , output_folder):
             try:
                 bpy.ops.import_scene.dtt_data(filepath = filepath, reset_blend = False)
             except:
-                print("could not open .dtt, continuing")
+                print("could not open file, continuing")
                 continue
-
-            joinAllObjects()
-            add_cameras(getFirstObject())
+            add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
             capture(output_folder,f)
-            deleteCollection()
+            clearScene()()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
             
 # use for objects imported manually into the scene
