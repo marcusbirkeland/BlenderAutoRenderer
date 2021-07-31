@@ -4,82 +4,124 @@ import math
 import os
 import sys
 
-# Remove 1st argument from the
-# list of command line arguments
-
-# COMMAND TO RUN : blender -b -P blenderAutoRender.py "indir" "outdir"
-
-argumentList = sys.argv[3:]
- 
+#TODO: 
+# 1. Find bounding box for ALL objects
+# 2. Set cameras to target center of that box
+        
 # -----------------------------------------------------------------------------
 
-
-""" add_cameras
-- (string) 	target_name
-            name of the 'to be caputred' object in blender 
-- (int) 	levels
-            number of levels in z direction
-- (int) 	density
-            number of cameras on one level
-- (int) 	r_offset
-            offset distance for the radius
-- (int) 	z_offset
-            offset distance in z direction
-            
->>> None
-add_cameras places cameras around the target object according to the given
-parameters. The placement is based on the bounding box of the target object.
-Offsets are based on the side length of the bounding box.
+# TO ADD CUSTOM IMPORTS, PASTE THIS into the elif chain:
+""" 
+elif f.endswith("[YOUR FILE EXTENSION]"):
+        try:
+            bpy.ops.[BLENDER COMMAND FOR IMPORT](filepath = filepath)
+        except:
+            print("could not open, continuing")
+            return -1
 """
 
-def joinAllObjects():
-    #Deselect all
-    bpy.ops.object.select_all(action='DESELECT')
-    ARM_OBJS = []
-    MSH_OBJS = []
-    
-    try:
-    
-        ARM_OBJS = [m for m in bpy.context.scene.objects if m.type == 'ARMATURE']
-        
-    except:
-        print("there was no collection")
-        
-    #delete armature
-    if(len(ARM_OBJS) > 0):
-        bpy.data.objects.remove(ARM_OBJS[0])
 
-    try:
-        #Mesh objects
-
-        MSH_OBJS = [m for m in bpy.context.scene.objects if m.type == 'MESH']
-    
-    except:
-        print("there was no collection")
-        
-    finally:
-
-        for OBJS in MSH_OBJS:
-            #Select all mesh objects
-            OBJS.select_set(state=True)
-
-            #Makes one active
-            bpy.context.view_layer.objects.active = OBJS
-        #Joins objects
+def import_file(dir_path, f):
+    filepath = dir_path + "/" + f
+    if f.endswith(".ply"):
         try:
-            bpy.ops.object.join()
+            bpy.ops.import_mesh.ply(filepath = filepath)
+            return 0
         except:
-            print("unable to join objects")
+            print("could not open ply, continuing")
+    elif f.endswith(".stl"):
+        try:
+            bpy.ops.import_mesh.stl(filepath = filepath)
+            return 0
+        except:
+            print("could not open stl, continuing")
+    elif f.endswith(".fbx"):
+        try:
+            bpy.ops.import_scene.fbx(filepath = filepath)
+            return 0
+        except:
+            print("could not open fbx, continuing")
+    elif f.endswith(".gltf") or f.endswith(".glb"):
+        try:
+            bpy.ops.import_scene.gltf(filepath = filepath)
+            return 0
+        except:
+            print("could not open gltf/glb, continuing")             
+    elif f.endswith(".obj"):
+        try:
+            bpy.ops.import_scene.obj(filepath = filepath)
+            return 0
+        except:
+            print("could not open obj, continuing")
+    elif f.endswith(".x3d") or f.endswith(".wrl"):
+        try:
+            bpy.ops.import_scene.x3d(filepath = filepath)
+            return 0
+        except:
+            print("could not open x3d/wrl, continuing")
+    elif f.endswith(".dtt"):
+        try:
+            bpy.ops.import_scene.dtt_data(filepath = filepath, reset_blend = False)
+            return 0
+        except:
+            print("could not open dtt, continuing")
+    return -1  
+  
+
+def apply_all_transforms():
+    for obj in bpy.data.objects:
+        if obj.type == "MESH":
+            #print("NAME:" , obj.name)
+            obj.select_set(True)
+            bpy.ops.object.transform_apply(location=True, rotation= True, scale=True)
+            obj.select_set(False)
     
+def get_total_min_BB():
+
+    objects = bpy.context.scene.objects
+    min_x = objects[0].bound_box[0][0]
+    min_y = objects[0].bound_box[0][1]
+    min_z = objects[0].bound_box[0][2]
+
+    for obj in objects:
+        if obj.type == "MESH":
+            temp_min_x = min([obj.bound_box[i][0] for i in range(0, 8)])
+            temp_min_y = min([obj.bound_box[i][1] for i in range(0, 8)])
+            temp_min_z = min([obj.bound_box[i][2] for i in range(0, 8)])
+            if temp_min_x < min_x:
+                min_x = temp_min_x
+            if temp_min_y < min_y:
+                min_y = temp_min_y
+            if temp_min_z < min_z:
+                min_z = temp_min_z 
+    return Vector((min_x,min_y,min_z))
+    
+def get_total_max_BB():
+
+    objects = bpy.context.scene.objects
+    max_x = objects[0].bound_box[0][0]
+    max_y = objects[0].bound_box[0][1]
+    max_z = objects[0].bound_box[0][2]
+
+    for obj in objects:
+        if obj.type == "MESH":
+            temp_max_x = max([obj.bound_box[i][0] for i in range(0, 8)])
+            temp_max_y = max([obj.bound_box[i][1] for i in range(0, 8)])
+            temp_max_z = max([obj.bound_box[i][2] for i in range(0, 8)])
+            if temp_max_x > max_x:
+                max_x = temp_max_x
+            if temp_max_y > max_y:
+                max_y = temp_max_y
+            if temp_max_z > max_z:
+                max_z = temp_max_z 
+    return Vector((max_x,max_y,max_z))               
+
 def getFirstObject():
     objectName = ""   
     try:
-        objectName = bpy.data.collections[0].objects[0].name
+        objectName = bpy.data.objects[0].name
     except:
-        try:
-            objectName = bpy.context.scene.objects[0].name
-        except:
-            return ""
+        return None
     return  objectName
 
 def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offset=8):
@@ -87,9 +129,21 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
         return
     # find target object
     target_obj = bpy.data.objects[target_name]
-    target_origin = target_obj.location
+    #target_origin = get_origin(get_min(target_obj.bound_box), get_max(target_obj.bound_box))
+    target_origin = get_origin(get_total_max_BB(), get_total_min_BB())
+    #print("Target origin:" , target_origin)
+
+    # Set cursor to target_origin
+    bpy.context.scene.cursor.location = target_origin
+    #print("total max bb: ", get_total_max_BB())
+    #print("total min bb:", get_total_min_BB())
+    # Set origin to 3d-cursor
+    target_obj.select_set(True)
+    bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+    target_obj.select_set(False)
+
     # get bounding box side lengths
-    bb_sides = get_min(target_obj.bound_box) - get_max(target_obj.bound_box)
+    bb_sides = get_total_min_BB() - get_total_max_BB()
     (dist_x, dist_y, dist_z) = tuple([abs(c) for c in bb_sides])
     originated_dist_y = .5 * dist_y
     # calc the radius by taking the longer side in x-y-direction + r_offset
@@ -117,6 +171,7 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
             camera_obj.location = Vector(position)	
             # Create a new collection and link it to the scene.
             # apply track-to constraint
+            # Set up camera tracking
             ttc = camera_obj.constraints.new(type='TRACK_TO')
             ttc.target = target_obj
             ttc.track_axis = 'TRACK_NEGATIVE_Z'
@@ -134,46 +189,10 @@ def add_cameras(target_name='target', levels=0, density=4, r_offset=1.5, z_offse
             bpy.ops.object.visual_transform_apply()
             #camera_obj.select_set(True)
             
-            
-
-
-""" get_min
-- (bound_box)	bound_box
-                utilized bound_box
->>> (Vector) (x,y,z)
-get_min estimates the minimal x, y, z values
-"""
-def get_min(bound_box):
-    min_x = min([bound_box[i][0] for i in range(0, 8)])
-    min_y = min([bound_box[i][1] for i in range(0, 8)])
-    min_z = min([bound_box[i][2] for i in range(0, 8)])
-    return Vector((min_x, min_y, min_z))
-
-
-""" get_max
-- (bound_box)	bound_box
-                utilized bound_box
->>> (Vector) (x,y,z)
-get_max estimates the maximal x, y, z values
-"""
-def get_max(bound_box):
-    max_x = max([bound_box[i][0] for i in range(0, 8)])
-    max_y = max([bound_box[i][1] for i in range(0, 8)])
-    max_z = max([bound_box[i][2] for i in range(0, 8)])
-    return Vector((max_x, max_y, max_z))
-
-
 def get_origin(v1, v2):
      return v1 + 0.5 * (v2 - v1)
 
-
-""" capture
-- (string)	path
-            path to image directory
->>> None
-this function iterates over all camera and renders their viewpoint
-"""
-def capture(path, filename):
+def capture(path, filename, use_transparent):
     bpy.context.scene.render.image_settings.color_mode = 'RGB'
     # iterate over all objects
     counter = 0
@@ -188,24 +207,22 @@ def capture(path, filename):
             file = os.path.join(path, 'img', filename.split(".")[0] + "_" + str(counter))
             bpy.context.scene.render.filepath = file
             bpy.context.scene.render.image_settings.color_mode ='RGBA'
-            bpy.context.scene.render.film_transparent = True
+            bpy.context.scene.render.film_transparent = use_transparent
             bpy.ops.render.render(write_still=True)
             counter += 1
-                  
-        
-def deleteCollection():
-    if(not bpy.data.collections):
-        print("no objects to delete")
-        return
-    collection = bpy.data.collections[0]
-    for obj in collection.objects:
+                    
+def clearScene():
+    all_data = bpy.data.objects
+    for obj in all_data:
         bpy.data.objects.remove(obj, do_unlink=True)
-    bpy.data.collections.remove(collection)
     
-def addLight():
+def addLight(enabled,intensity, angle):
+    if(not enabled):
+        return
     # create light datablock, set attributes
     light_data = bpy.data.lights.new(name="ambient", type='SUN')
-    light_data.energy = 10
+    light_data.energy = intensity
+    light_data.angle = angle
 
     # create new object with our light datablock
     light_object = bpy.data.objects.new(name="ambient", object_data=light_data)
@@ -213,41 +230,22 @@ def addLight():
     # link light object
     bpy.context.collection.objects.link(light_object)
 
-    # make it active 
-    bpy.context.view_layer.objects.active = light_object
-
-    #change location
-    light_object.location = (5, 5, 5)
-
     # update scene, if needed
     dg = bpy.context.evaluated_depsgraph_get() 
     dg.update()    
 
-def main (dir_path = argumentList[0] , output_folder = argumentList[1]):
-    addLight()
+def main (dir_path , output_folder, levels, density , r_offset, z_offset, enabled, intensity, angle, only_place, use_transparent):
+    clearScene()
     files = [f for f in os.listdir(dir_path) if os.path.isfile (os.path.join(dir_path,f))]
     for f in files:
-        filepath = dir_path + "/" + f 
-        if f.endswith('.dtt'):
-            skip = False
-            try:
-                bpy.ops.import_scene.dtt_data(filepath = filepath, reset_blend = False)
-            except:
-                print("could not open .dtt, continuing")
-                skip = True
-            finally:
-                if(not skip):
-                    joinAllObjects()
-                    add_cameras(getFirstObject())
-                    capture(output_folder,f)
-                    deleteCollection()
+        if import_file(dir_path, f) == -1:
+            continue
+        apply_all_transforms()
+        addLight(enabled, intensity, angle)
+        add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
+        if only_place:
+            return
+        capture(output_folder,f, use_transparent)
+        clearScene()
     print("\n\n-----------------------------------\n\nRendering completed! \n\n")
-            
-# use for objects imported manually into the scene
-def captureScene(f = "filename.dtt"):
-    joinAllObjects()
-    add_cameras(getFirstObject())
-    capture('C:/tmp/render',f)
-    deleteCollection()
-    
-main()
+
