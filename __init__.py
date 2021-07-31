@@ -1,7 +1,7 @@
 bl_info = {
     "name": "BlenderAutoRenderer",
-    "author": "Zprite",
-    "version": (0, 2, 00),
+    "author": "MC",
+    "version": (0, 90, 0),
     "blender": (2, 80, 0),
     "location": "Output Properties",
     "description": "Auto Renderer",
@@ -17,10 +17,10 @@ class BARProps(bpy.types.PropertyGroup):
     num_cameras : IntProperty(min = 1, max = 360, default=4)
     num_camera_levels : IntProperty(min = 0 , max = 10, default=0)
     radius_offset : FloatProperty(min = 0, max = 2000, default=5)
-    z_offset : FloatProperty(default=1)
+    z_offset : FloatProperty(default=5)
 
     place_light : BoolProperty(default=True)
-    light_intensity : FloatProperty(min = 0, default=10)
+    light_intensity : FloatProperty(min = 0, default=8)
     light_angle : FloatProperty(min = 0, max = 360)
 
     only_place : BoolProperty(default=False)
