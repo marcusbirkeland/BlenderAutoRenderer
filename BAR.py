@@ -61,7 +61,7 @@ def import_file(dir_path, f):
             print("could not open x3d/wrl, continuing")
     elif f.endswith(".dtt"):
         try:
-            bpy.ops.import_scene.dtt_data(filepath = filepath, reset_blend = False)
+            bpy.ops.import_scene.dtt_data_ac(filepath = filepath, reset_blend = False)
             return 0
         except:
             print("could not open dtt, continuing")
@@ -215,6 +215,7 @@ def clearScene():
     all_data = bpy.data.objects
     for obj in all_data:
         bpy.data.objects.remove(obj, do_unlink=True)
+    bpy.ops.outliner.orphans_purge()
     
 def addLight(enabled,intensity, angle):
     if(not enabled):
