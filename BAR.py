@@ -242,8 +242,8 @@ def main (dir_path , output_folder, levels, density , r_offset, z_offset, enable
         if import_file(dir_path, f) == -1:
             continue
         apply_all_transforms()
-        addLight(enabled, intensity, angle)
         add_cameras(getFirstObject(), levels, density, r_offset, z_offset)
+        addLight(enabled, intensity, angle)
         if only_place:
             return
         capture(output_folder,f, use_transparent)
