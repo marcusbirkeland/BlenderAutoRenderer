@@ -3,6 +3,8 @@
 This script lets you automatically import and render files in Blender! 
 Based off [this script.](https://gist.github.com/der-Daniel/cfc93a4661f47e66bfd4ebd81efbb943)
 
+## Example output:
+
 <img height="400" alt="output example" src="https://user-images.githubusercontent.com/36818485/123545506-a3322b00-d758-11eb-90e6-36227326429d.png">
 
 ## How to use 
